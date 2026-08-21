@@ -17,8 +17,24 @@ if sys.stdout.encoding != 'utf-8':
 
 import requests
 import numpy as np
-import tensorflow as tf
 from PIL import Image
+
+# Universal TFLite / LiteRT / TensorFlow Interpreter import
+try:
+    from ai_edge_litert.interpreter import Interpreter
+    print("[AI Runtime] Using ai_edge_litert (Google LiteRT) Engine")
+except ImportError:
+    try:
+        from tflite_runtime.interpreter import Interpreter
+        print("[AI Runtime] Using tflite_runtime Engine")
+    except ImportError:
+        try:
+            import tensorflow as tf
+            Interpreter = tf.lite.Interpreter
+            print("[AI Runtime] Using tensorflow.lite Engine")
+        except ImportError:
+            Interpreter = None
+            print("[WARN] No TFLite engine available!")
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -101,7 +117,10 @@ def initialize_tflite_model(model_path: str):
 
     print(f"Loading TFLite model from {model_path}...")
     try:
-        new_interpreter = tf.lite.Interpreter(model_path=model_path)
+        if Interpreter is None:
+            raise RuntimeError("No TFLite / LiteRT interpreter library installed.")
+
+        new_interpreter = Interpreter(model_path=model_path)
         new_interpreter.allocate_tensors()
         new_input_details = new_interpreter.get_input_details()
         new_output_details = new_interpreter.get_output_details()
@@ -437,7 +456,9 @@ async def upload_model_file(
 
     # Validate model by instantiating test interpreter
     try:
-        test_interpreter = tf.lite.Interpreter(model_path=temp_path)
+        if Interpreter is None:
+            raise RuntimeError("No TFLite / LiteRT engine loaded.")
+        test_interpreter = Interpreter(model_path=temp_path)
         test_interpreter.allocate_tensors()
         test_interpreter.get_input_details()
         test_interpreter.get_output_details()
