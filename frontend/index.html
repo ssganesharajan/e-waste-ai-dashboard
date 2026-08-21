@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoSort IoT | ThingsBoard-Style E-Waste Telemetry & AI Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="thingsboard-theme">
+
+    <!-- ================================================================= -->
+    <!-- ADMIN AUTHENTICATION MODAL / OVERLAY                              -->
+    <!-- ================================================================= -->
+    <div class="tb-login-overlay" id="login-overlay">
+        <div class="tb-login-card">
+            <div class="tb-login-header">
+                <div class="tb-login-logo">
+                    <i class="fa-solid fa-microchip"></i>
+                </div>
+                <h2>EcoSort <span class="tb-accent">IoT Cloud</span></h2>
+                <p class="tb-login-sub">Edge AI Telemetry & E-Waste Classification Gateway</p>
+                <div class="tb-badge-cloud" style="margin: 6px auto 0; display: inline-block;">
+                    <i class="fa-solid fa-shield-halved"></i> SECURE ACCESS REQUIRED
+                </div>
+            </div>
+
+            <!-- Login Error Alert -->
+            <div class="tb-alert-danger" id="login-error-alert" style="display: none;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="login-error-text">Invalid User ID or Password.</span>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="tb-login-form" onsubmit="return false;">
+                <div class="tb-form-group">
+                    <label for="login-username"><i class="fa-solid fa-user"></i> User ID</label>
+                    <input type="text" id="login-username" class="tb-input" placeholder="Admin" value="Admin" required autocomplete="username">
+                </div>
+
+                <div class="tb-form-group">
+                    <label for="login-password"><i class="fa-solid fa-lock"></i> Password</label>
+                    <input type="password" id="login-password" class="tb-input" placeholder="12345678" value="12345678" required autocomplete="current-password">
+                </div>
+
+                <div class="tb-login-actions">
+                    <button type="submit" class="tb-btn tb-btn-primary tb-btn-lg" id="btn-login-submit" style="width: 100%;">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In to AI Dashboard
+                    </button>
+                    <button type="button" class="tb-btn tb-btn-secondary tb-btn-sm" id="btn-fill-demo" style="width: 100%; margin-top: 8px;">
+                        <i class="fa-solid fa-key"></i> Auto-Fill Default Credentials (Admin / 12345678)
+                    </button>
+                </div>
+            </form>
+
+            <div class="tb-login-footer">
+                <small><i class="fa-solid fa-server"></i> FastAPI + MobileNetV2 Neural Engine v2.0</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- MAIN APPLICATION CONTAINER (Protected)                            -->
+    <!-- ================================================================= -->
+    <div class="tb-app-container" id="app-container" style="display: none;">
+        
+        <!-- Top Cloud Navigation Bar -->
+        <header class="tb-navbar">
+            <div class="tb-brand">
+                <div class="tb-logo-icon">
+                    <i class="fa-solid fa-microchip"></i>
+                </div>
+                <div>
+                    <div class="tb-title-row">
+                        <h1 class="tb-logo-title">EcoSort <span class="tb-accent">IoT Cloud</span></h1>
+                        <span class="tb-badge-cloud"><i class="fa-solid fa-cloud"></i> CLOUD READY</span>
+                    </div>
+                    <p class="tb-logo-subtitle">ESP32-CAM Telemetry & MobileNetV2 AI E-Waste Classifier</p>
+                </div>
+            </div>
+
+            <!-- Device Selector & System Telemetry Status -->
+            <div class="tb-device-bar">
+                <div class="tb-device-selector">
+                    <i class="fa-solid fa-satellite-dish text-accent"></i>
+                    <select id="device-select" class="tb-select">
+                        <option value="esp32-cam-01">ESP32-CAM-01 [Node: 10.92.50.153]</option>
+                        <option value="webcam-local">Local Web Camera [Virtual Node]</option>
+                        <option value="manual-ingest">Manual Ingestion [Upload Hub]</option>
+                    </select>
+                </div>
+
+                <div class="tb-status-group">
+                    <div class="tb-pill" id="cloud-pill">
+                        <span class="tb-dot tb-dot-success"></span>
+                        <span>Server: <strong id="backend-status-text">Connecting...</strong></span>
+                    </div>
+                    <div class="tb-pill" id="node-pill">
+                        <span class="tb-dot tb-dot-warning" id="esp32-dot"></span>
+                        <span>Node: <strong id="esp32-status-text">10.92.50.153</strong></span>
+                    </div>
+                    <div class="tb-pill" id="model-pill">
+                        <i class="fa-solid fa-brain tb-text-accent"></i>
+                        <span>AI Engine: <strong id="active-model-name-nav">e_waste_classifier.tflite</strong></span>
+                    </div>
+                    <!-- User Profile Pill -->
+                    <div class="tb-pill tb-user-pill">
+                        <i class="fa-solid fa-user-shield text-green"></i>
+                        <span>User: <strong id="nav-user-display">Admin</strong></span>
+                    </div>
+                </div>
+
+                <div class="tb-header-actions">
+                    <button class="tb-btn tb-btn-secondary tb-btn-sm" id="btn-nav-upload" title="Manual Image Ingestion">
+                        <i class="fa-solid fa-file-arrow-up"></i> Upload Image
+                    </button>
+                    <button class="tb-btn tb-btn-secondary tb-btn-sm" id="btn-nav-model" title="AI Model Management">
+                        <i class="fa-solid fa-microchip"></i> AI Model
+                    </button>
+                    <button class="tb-btn tb-btn-danger tb-btn-sm" id="btn-logout" title="Sign Out">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                    <button class="tb-btn tb-btn-icon" id="btn-fullscreen" title="Toggle Fullscreen">
+                        <i class="fa-solid fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Viewport -->
+        <main class="tb-dashboard-layout">
+            
+            <!-- Left Navigation Sidebar -->
+            <aside class="tb-sidebar">
+                <nav class="tb-nav-list">
+                    <button class="tb-nav-item active" data-tab="tab-telemetry">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Live Telemetry</span>
+                    </button>
+                    <button class="tb-nav-item" data-tab="tab-analytics">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Cloud Analytics</span>
+                    </button>
+                    <button class="tb-nav-item" data-tab="tab-classes">
+                        <i class="fa-solid fa-book-bookmark"></i>
+                        <span>Material Catalog</span>
+                    </button>
+                    <button class="tb-nav-item" data-tab="tab-events">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span>Event Audit Logs</span>
+                    </button>
+                    <button class="tb-nav-item" data-tab="tab-device-config">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Device & AI Setup</span>
+                    </button>
+                </nav>
+
+                <!-- Cloud Summary Card in Sidebar -->
+                <div class="tb-sidebar-card">
+                    <div class="tb-sidebar-card-header">
+                        <i class="fa-solid fa-signal tb-text-accent"></i>
+                        <span>Cloud Telemetry</span>
+                    </div>
+                    <div class="tb-stat-row">
+                        <span>Total Ingested</span>
+                        <strong id="sidebar-total-scans">0 items</strong>
+                    </div>
+                    <div class="tb-stat-row">
+                        <span>CO₂ Abated</span>
+                        <strong class="tb-text-success" id="sidebar-co2-saved">0.0 kg</strong>
+                    </div>
+                    <div class="tb-stat-row">
+                        <span>Mean Latency</span>
+                        <strong id="sidebar-latency">~60 ms</strong>
+                    </div>
+                    <div class="tb-stat-row" style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--tb-border);">
+                        <span>Active Model</span>
+                        <strong class="tb-text-accent" id="sidebar-model-name" style="font-size: 10px;">MobileNetV2</strong>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Dashboard Central Workspace -->
+            <div class="tb-main-content">
+
+                <!-- ========================================================= -->
+                <!-- TAB 1: THINGSBOARD LIVE TELEMETRY DASHBOARD               -->
+                <!-- ========================================================= -->
+                <div class="tb-tab-pane active" id="tab-telemetry">
+                    
+                    <!-- Top KPI Ribbon -->
+                    <div class="tb-kpi-ribbon">
+                        <div class="tb-kpi-widget">
+                            <div class="tb-kpi-icon icon-blue"><i class="fa-solid fa-boxes-stacked"></i></div>
+                            <div class="tb-kpi-info">
+                                <span class="tb-kpi-title">Total Processed</span>
+                                <h3 class="tb-kpi-value" id="kpi-total-scans">0</h3>
+                                <span class="tb-kpi-delta"><i class="fa-solid fa-arrow-up"></i> Real-time Ingestion</span>
+                            </div>
+                        </div>
+
+                        <div class="tb-kpi-widget">
+                            <div class="tb-kpi-icon icon-green"><i class="fa-solid fa-leaf"></i></div>
+                            <div class="tb-kpi-info">
+                                <span class="tb-kpi-title">Est. Carbon Avoided</span>
+                                <h3 class="tb-kpi-value text-green" id="kpi-co2-saved">0.0 kg</h3>
+                                <span class="tb-kpi-delta"><i class="fa-solid fa-seedling"></i> Recyclable Recovery</span>
+                            </div>
+                        </div>
+
+                        <div class="tb-kpi-widget">
+                            <div class="tb-kpi-icon icon-red"><i class="fa-solid fa-biohazard"></i></div>
+                            <div class="tb-kpi-info">
+                                <span class="tb-kpi-title">Hazard Warnings</span>
+                                <h3 class="tb-kpi-value text-red" id="kpi-hazard-count">0</h3>
+                                <span class="tb-kpi-delta" id="kpi-hazard-delta">Containment Active</span>
+                            </div>
+                        </div>
+
+                        <div class="tb-kpi-widget">
+                            <div class="tb-kpi-icon icon-amber"><i class="fa-solid fa-stopwatch"></i></div>
+                            <div class="tb-kpi-info">
+                                <span class="tb-kpi-title">Edge AI Latency</span>
+                                <h3 class="tb-kpi-value" id="kpi-ai-latency">0.0 ms</h3>
+                                <span class="tb-kpi-delta">TFLite Neural Engine</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mode Quick Toggle Bar -->
+                    <div class="tb-mode-bar">
+                        <span class="tb-mode-label"><i class="fa-solid fa-camera-rotate"></i> Ingestion Mode:</span>
+                        <div class="tb-mode-buttons">
+                            <button class="tb-btn-mode active" id="mode-btn-esp32" onclick="setSourceMode('esp32')">
+                                <i class="fa-solid fa-satellite-dish"></i> ESP32-CAM Stream
+                            </button>
+                            <button class="tb-btn-mode" id="mode-btn-webcam" onclick="setSourceMode('webcam')">
+                                <i class="fa-solid fa-video"></i> Local Web Camera
+                            </button>
+                            <button class="tb-btn-mode" id="mode-btn-upload" onclick="setSourceMode('upload')">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Manual Image Upload
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Widgets Grid -->
+                    <div class="tb-widgets-grid">
+                        
+                        <!-- WIDGET 1: Optical Sensor & Ingestion Hub -->
+                        <div class="tb-widget tb-widget-camera">
+                            <div class="tb-widget-header">
+                                <div class="tb-widget-title">
+                                    <i class="fa-solid fa-video tb-text-accent"></i>
+                                    <span id="viewport-header-title">ESP32-CAM Optical Sensor Feed</span>
+                                </div>
+                                <div class="tb-widget-tools">
+                                    <span class="tb-badge-live" id="stream-live-tag"><span class="tb-dot-ping"></span> LIVE</span>
+                                    <button class="tb-tool-btn" id="btn-refresh-feed" title="Snapshot Refresh"><i class="fa-solid fa-rotate-right"></i></button>
+                                </div>
+                            </div>
+
+                            <div class="tb-camera-viewport-wrapper">
+                                <!-- 1. ESP32 View -->
+                                <div class="tb-viewport" id="viewport-esp32">
+                                    <img id="esp32-stream-img" src="" alt="ESP32 Live Feed" style="display:none;">
+                                    <div class="tb-viewport-hud">
+                                        <div class="hud-top-left">NODE: ESP32-CAM | IP: <span id="hud-ip-display">10.92.50.153</span></div>
+                                        <div class="hud-top-right">RES: 640x480 | FORMAT: JPEG</div>
+                                        <div class="hud-crosshair"></div>
+                                        <div class="hud-bottom-left" id="hud-timestamp">SYNC: READY</div>
+                                        <div class="hud-bottom-right" id="hud-status">STATUS: ONLINE</div>
+                                    </div>
+                                    <div class="tb-camera-placeholder" id="esp32-placeholder">
+                                        <i class="fa-solid fa-satellite-dish tb-pulse-icon"></i>
+                                        <h4>Connecting to ESP32-CAM...</h4>
+                                        <p id="esp32-url-display">Endpoint: http://10.92.50.153/capture</p>
+                                        <div style="display: flex; gap: 8px; margin-top: 10px;">
+                                            <button class="tb-btn tb-btn-secondary tb-btn-sm" id="btn-ping-esp32">
+                                                <i class="fa-solid fa-signal"></i> Ping Node
+                                            </button>
+                                            <button class="tb-btn tb-btn-primary tb-btn-sm" onclick="setSourceMode('upload')">
+                                                <i class="fa-solid fa-upload"></i> Switch to Manual Upload
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 2. Webcam View -->
+                                <div class="tb-viewport" id="viewport-webcam" style="display:none;">
+                                    <video id="webcam-video" autoplay playsinline muted></video>
+                                    <canvas id="webcam-canvas" style="display:none;"></canvas>
+                                    <div class="tb-camera-placeholder" id="webcam-placeholder">
+                                        <i class="fa-solid fa-video-slash"></i>
+                                        <h4>Webcam Standby</h4>
+                                        <p>Use your local PC / laptop camera for instant e-waste capture</p>
+                                        <button class="tb-btn tb-btn-primary tb-btn-sm" id="btn-start-webcam" style="margin-top: 10px;">
+                                            <i class="fa-solid fa-power-off"></i> Start Web Camera
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- 3. Manual Upload Dropzone View -->
+                                <div class="tb-viewport tb-dropzone-viewport" id="viewport-upload" style="display:none;">
+                                    <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/bmp,image/*" style="display:none;">
+                                    
+                                    <div class="tb-dropzone-content" id="dropzone-area">
+                                        <i class="fa-solid fa-cloud-arrow-up tb-drop-icon"></i>
+                                        <h4>Upload E-Waste Image for AI Classification</h4>
+                                        <p>Drag & drop your image here or click to browse</p>
+                                        <span class="tb-text-dim" style="font-size: 11px;">Supports JPEG, PNG, BMP, WebP</span>
+                                        
+                                        <div class="tb-dropzone-buttons" style="margin-top: 14px; display: flex; gap: 8px;">
+                                            <button type="button" class="tb-btn tb-btn-primary tb-btn-sm" id="btn-browse-file">
+                                                <i class="fa-solid fa-folder-open"></i> Browse Image File
+                                            </button>
+                                            <button type="button" class="tb-btn tb-btn-secondary tb-btn-sm" id="btn-load-sample">
+                                                <i class="fa-solid fa-flask"></i> Load Demo Sample
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Upload Image Preview Container -->
+                                    <div class="tb-upload-preview-container" id="upload-preview-box" style="display:none;">
+                                        <img id="upload-preview-img" alt="Selected Preview">
+                                        <div class="tb-preview-bar">
+                                            <div class="tb-preview-meta">
+                                                <strong id="upload-file-name">sample.jpg</strong>
+                                                <span id="upload-file-size">120 KB</span>
+                                            </div>
+                                            <button type="button" class="tb-btn tb-btn-danger tb-btn-sm" id="btn-clear-upload" title="Clear Image">
+                                                <i class="fa-solid fa-trash"></i> Clear
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Capture Control Bar -->
+                            <div class="tb-camera-controls">
+                                <button class="tb-btn tb-btn-primary tb-btn-lg" id="btn-trigger-analyze">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    <span id="analyze-btn-text">Acquire Frame & Classify</span>
+                                </button>
+                                <button class="tb-btn tb-btn-secondary" id="btn-toggle-auto-stream">
+                                    <i class="fa-solid fa-play"></i> Auto Stream Poll
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- WIDGET 2: ThingsBoard AI Telemetry & Inference Card -->
+                        <div class="tb-widget tb-widget-ai-result">
+                            <div class="tb-widget-header">
+                                <div class="tb-widget-title">
+                                    <i class="fa-solid fa-brain tb-text-accent"></i>
+                                    <span>AI Classification & Material Telemetry</span>
+                                </div>
+                                <span class="tb-badge-time" id="inference-time-badge">Standby</span>
+                            </div>
+
+                            <!-- Initial Empty State -->
+                            <div class="tb-empty-state" id="results-empty">
+                                <div class="tb-empty-icon">
+                                    <i class="fa-solid fa-microchip"></i>
+                                </div>
+                                <h3>Awaiting Telemetry Data</h3>
+                                <p>Acquire an optical frame from the ESP32-CAM or upload an image file to trigger real-time AI classification and recovery recommendations.</p>
+                                <div style="display:flex; gap:10px; margin-top:14px;">
+                                    <button class="tb-btn tb-btn-primary tb-btn-sm" onclick="setSourceMode('upload'); document.getElementById('file-input').click();">
+                                        <i class="fa-solid fa-upload"></i> Upload Image Now
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Loading Spinner -->
+                            <div class="tb-loading-state" id="results-loading" style="display:none;">
+                                <div class="tb-spinner"></div>
+                                <h4>Running MobileNetV2 Inference...</h4>
+                                <p>Analyzing feature maps & generating material vectors</p>
+                            </div>
+
+                            <!-- Result Telemetry Body -->
+                            <div class="tb-result-body" id="results-content" style="display:none;">
+                                
+                                <!-- Primary Identification Panel -->
+                                <div class="tb-id-panel">
+                                    <div class="tb-id-left">
+                                        <div class="tb-icon-circle" id="res-icon">📦</div>
+                                        <div>
+                                            <span class="tb-category-tag" id="res-category">Category</span>
+                                            <h2 class="tb-item-name" id="res-name">Item Name</h2>
+                                        </div>
+                                    </div>
+                                    <div class="tb-id-right">
+                                        <div class="tb-gauge-box">
+                                            <span class="tb-gauge-label">Confidence</span>
+                                            <span class="tb-gauge-val" id="res-confidence">98.5%</span>
+                                        </div>
+                                        <div class="tb-hazard-badge" id="res-hazard">Hazard: Moderate</div>
+                                    </div>
+                                </div>
+
+                                <p class="tb-item-desc" id="res-description"></p>
+
+                                <!-- Top Probabilities Bar Chart -->
+                                <div class="tb-probs-section">
+                                    <div class="tb-section-label">
+                                        <span>NEURAL NETWORK OUTPUT LOGITS</span>
+                                        <span class="tb-text-muted">Top 3 Candidates</span>
+                                    </div>
+                                    <div class="tb-prob-bars" id="top-predictions-list">
+                                        <!-- Injected via JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Materials & Hazard Breakdown -->
+                                <div class="tb-materials-split">
+                                    <div class="tb-mat-card tb-mat-rec">
+                                        <div class="tb-mat-title">
+                                            <i class="fa-solid fa-gem text-green"></i>
+                                            <span>Valuable / Recyclable</span>
+                                        </div>
+                                        <ul class="tb-tag-list" id="res-recyclable-list">
+                                            <!-- Injected via JS -->
+                                        </ul>
+                                    </div>
+
+                                    <div class="tb-mat-card tb-mat-haz">
+                                        <div class="tb-mat-title">
+                                            <i class="fa-solid fa-triangle-exclamation text-red"></i>
+                                            <span>Hazardous Elements</span>
+                                        </div>
+                                        <ul class="tb-tag-list" id="res-hazardous-list">
+                                            <!-- Injected via JS -->
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Action & Safety Protocol -->
+                                <div class="tb-protocol-card">
+                                    <div class="tb-protocol-title">
+                                        <i class="fa-solid fa-clipboard-check tb-text-accent"></i>
+                                        <span>Recommended Recycling Protocol & Safety</span>
+                                    </div>
+                                    <ol class="tb-steps-list" id="res-steps-list">
+                                        <!-- Injected via JS -->
+                                    </ol>
+                                </div>
+
+                                <!-- Impact Footer -->
+                                <div class="tb-impact-footer">
+                                    <div class="tb-impact-item">
+                                        <i class="fa-solid fa-cloud-arrow-down text-green"></i>
+                                        <div>
+                                            <span class="tb-impact-num text-green" id="res-co2">2.5 kg</span>
+                                            <span class="tb-impact-lbl">CO₂ Abatement</span>
+                                        </div>
+                                    </div>
+                                    <div class="tb-impact-item">
+                                        <i class="fa-solid fa-recycle tb-text-accent"></i>
+                                        <div>
+                                            <span class="tb-impact-num" id="res-recovery">95%</span>
+                                            <span class="tb-impact-lbl">Recovery Yield</span>
+                                        </div>
+                                    </div>
+                                    <div class="tb-impact-item">
+                                        <i class="fa-solid fa-route text-blue"></i>
+                                        <div>
+                                            <span class="tb-impact-num" id="res-reuse">Smelting</span>
+                                            <span class="tb-impact-lbl">Optimal Route</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ========================================================= -->
+                <!-- TAB 2: CLOUD ANALYTICS                                    -->
+                <!-- ========================================================= -->
+                <div class="tb-tab-pane" id="tab-analytics">
+                    <div class="tb-pane-header">
+                        <h2>Sustainability & Resource Recovery Analytics</h2>
+                        <p>Real-time aggregated cloud metrics for electronic waste diversion.</p>
+                    </div>
+
+                    <div class="tb-kpi-ribbon" style="margin-bottom: 24px;">
+                        <div class="tb-kpi-widget">
+                            <div class="tb-kpi-icon icon-green"><i class="fa-solid fa-earth-americas"></i></div>
+                            <div class="tb-kpi-info">
+                                <span class="tb-kpi-title">Gross CO₂ Prevented</span>
+                                <h3 class="tb-kpi-value text-green" id="stats-total-co2">0.0 kg</h3>
+                                <span class="tb-kpi-delta">Cumulative avoidance</span>
+                            </div>
+                        </div>
+
+                        <div class="tb-kpi-widget">
+                            <div class="tb-kpi-icon icon-blue"><i class="fa-solid fa-server"></i></div>
+                            <div class="tb-kpi-info">
+                                <span class="tb-kpi-title">Total Ingested Events</span>
+                                <h3 class="tb-kpi-value" id="stats-total-items">0</h3>
+                                <span class="tb-kpi-delta">10 Distinct Classes</span>
+                            </div>
+                        </div>
+
+                        <div class="tb-kpi-widget">
+                            <div class="tb-kpi-icon icon-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <div class="tb-kpi-info">
+                                <span class="tb-kpi-title">High-Hazard Items Diverted</span>
+                                <h3 class="tb-kpi-value text-red" id="stats-hazardous-items">0</h3>
+                                <span class="tb-kpi-delta">Contained from landfill</span>
+                            </div>
+                        </div>
+
+                        <div class="tb-kpi-widget">
+                            <div class="tb-kpi-icon icon-amber"><i class="fa-solid fa-trophy"></i></div>
+                            <div class="tb-kpi-info">
+                                <span class="tb-kpi-title">Dominant Category</span>
+                                <h3 class="tb-kpi-value text-amber" id="stats-top-item">None</h3>
+                                <span class="tb-kpi-delta">Highest telemetry volume</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tb-analytics-grid">
+                        <div class="tb-widget">
+                            <div class="tb-widget-header">
+                                <div class="tb-widget-title">
+                                    <i class="fa-solid fa-chart-bar tb-text-accent"></i>
+                                    <span>E-Waste Distribution by Volume</span>
+                                </div>
+                            </div>
+                            <div class="tb-chart-container" id="category-distribution-container">
+                                <p class="tb-text-muted tb-text-center" style="padding: 40px;">Perform classification scans to populate live distribution chart.</p>
+                            </div>
+                        </div>
+
+                        <div class="tb-widget">
+                            <div class="tb-widget-header">
+                                <div class="tb-widget-title">
+                                    <i class="fa-solid fa-shield-halved tb-text-accent"></i>
+                                    <span>Environmental Hazard Distribution</span>
+                                </div>
+                            </div>
+                            <div class="tb-hazard-breakdown">
+                                <div class="tb-hazard-row">
+                                    <span class="tb-haz-name"><i class="fa-solid fa-circle text-red"></i> High Hazard (Toxic/Corrosive)</span>
+                                    <div class="tb-meter-bg"><div class="tb-meter-fill fill-danger" id="bar-high" style="width: 0%;"></div></div>
+                                    <span class="tb-haz-count" id="cnt-high">0</span>
+                                </div>
+                                <div class="tb-hazard-row">
+                                    <span class="tb-haz-name"><i class="fa-solid fa-circle text-amber"></i> Moderate (Special Handling)</span>
+                                    <div class="tb-meter-bg"><div class="tb-meter-fill fill-warning" id="bar-mod" style="width: 0%;"></div></div>
+                                    <span class="tb-haz-count" id="cnt-mod">0</span>
+                                </div>
+                                <div class="tb-hazard-row">
+                                    <span class="tb-haz-name"><i class="fa-solid fa-circle text-green"></i> Low / Safe Recyclable</span>
+                                    <div class="tb-meter-bg"><div class="tb-meter-fill fill-success" id="bar-low" style="width: 0%;"></div></div>
+                                    <span class="tb-haz-count" id="cnt-low">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================================= -->
+                <!-- TAB 3: MATERIAL CATALOG                                   -->
+                <!-- ========================================================= -->
+                <div class="tb-tab-pane" id="tab-classes">
+                    <div class="tb-pane-header">
+                        <h2>10 Core E-Waste Material & Recycling Standards</h2>
+                        <p>Reference schema trained into MobileNetV2 with chemical and recycling classifications.</p>
+                    </div>
+                    <div class="tb-catalog-grid" id="catalog-grid">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+
+                <!-- ========================================================= -->
+                <!-- TAB 4: EVENT AUDIT LOGS                                   -->
+                <!-- ========================================================= -->
+                <div class="tb-tab-pane" id="tab-events">
+                    <div class="tb-pane-header tb-flex-between">
+                        <div>
+                            <h2>Real-Time Telemetry Audit Logs</h2>
+                            <p>Complete historical log of all camera events, AI confidence scores, and material tags.</p>
+                        </div>
+                        <div class="tb-btn-group">
+                            <button class="tb-btn tb-btn-secondary tb-btn-sm" id="btn-export-csv">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </button>
+                            <button class="tb-btn tb-btn-danger tb-btn-sm" id="btn-clear-history">
+                                <i class="fa-solid fa-trash"></i> Clear Logs
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tb-widget tb-table-widget">
+                        <div class="tb-table-responsive">
+                            <table class="tb-table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Ingestion Node</th>
+                                        <th>Optical Capture</th>
+                                        <th>Classified Item</th>
+                                        <th>Category</th>
+                                        <th>AI Confidence</th>
+                                        <th>Hazard Profile</th>
+                                        <th>CO₂ Abated</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-table-body">
+                                    <tr>
+                                        <td colspan="8" class="tb-text-center tb-text-muted" style="padding: 40px;">No telemetry events recorded yet.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================================= -->
+                <!-- TAB 5: DEVICE & AI SETUP                                  -->
+                <!-- ========================================================= -->
+                <div class="tb-tab-pane" id="tab-device-config">
+                    <div class="tb-pane-header">
+                        <h2>Device Telemetry & AI Model Deployment Hub</h2>
+                        <p>Configure ESP32-CAM nodes, manage & hot-reload TensorFlow Lite neural models, and prepare cloud deployment.</p>
+                    </div>
+
+                    <div class="tb-config-grid">
+                        
+                        <!-- CARD 1: AI Model File Management (Upload & Hot-Reload) -->
+                        <div class="tb-widget">
+                            <div class="tb-widget-header">
+                                <div class="tb-widget-title">
+                                    <i class="fa-solid fa-brain tb-text-accent"></i>
+                                    <span>AI Neural Engine & Model Uploader</span>
+                                </div>
+                                <span class="tb-badge-cloud" style="color:var(--tb-emerald); border-color:rgba(16,185,129,0.3);">
+                                    <i class="fa-solid fa-circle-check"></i> HOT-RELOAD READY
+                                </span>
+                            </div>
+
+                            <!-- Active Model Info Card -->
+                            <div class="tb-active-model-card">
+                                <div class="tb-model-meta-grid">
+                                    <div class="tb-model-stat">
+                                        <span class="tb-stat-lbl">Active Model File</span>
+                                        <strong id="model-info-name" class="tb-text-accent">e_waste_classifier.tflite</strong>
+                                    </div>
+                                    <div class="tb-model-stat">
+                                        <span class="tb-stat-lbl">Architecture</span>
+                                        <strong id="model-info-arch">MobileNetV2 (TFLite)</strong>
+                                    </div>
+                                    <div class="tb-model-stat">
+                                        <span class="tb-stat-lbl">File Size</span>
+                                        <strong id="model-info-size">8.5 MB</strong>
+                                    </div>
+                                    <div class="tb-model-stat">
+                                        <span class="tb-stat-lbl">Tensor Resolution</span>
+                                        <strong id="model-info-res">224 x 224 x 3</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Model Upload Form -->
+                            <div class="tb-model-upload-box" style="margin-top: 16px;">
+                                <label style="font-size: 12px; font-weight: 700; display: block; margin-bottom: 6px;">
+                                    <i class="fa-solid fa-cloud-arrow-up text-green"></i> Upload New Model File (.tflite)
+                                </label>
+                                
+                                <input type="file" id="model-file-input" accept=".tflite" style="display:none;">
+                                <input type="file" id="classes-file-input" accept=".json" style="display:none;">
+
+                                <div class="tb-model-dropzone" id="model-dropzone">
+                                    <i class="fa-solid fa-microchip tb-text-accent" style="font-size: 28px; margin-bottom: 6px;"></i>
+                                    <h4>Drop New .tflite AI Model Here</h4>
+                                    <p>or click to select file from your computer</p>
+                                    <button type="button" class="tb-btn tb-btn-secondary tb-btn-sm" id="btn-browse-model" style="margin-top: 8px;">
+                                        <i class="fa-solid fa-folder-open"></i> Browse .tflite File
+                                    </button>
+                                </div>
+
+                                <!-- Selected Model Details Banner -->
+                                <div id="selected-model-banner" class="tb-selected-banner" style="display: none;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="fa-solid fa-file-code text-green"></i>
+                                        <div>
+                                            <strong id="selected-model-filename">custom_model.tflite</strong>
+                                            <span id="selected-model-filesize" class="tb-text-dim" style="font-size: 10px; margin-left: 6px;">(8.5 MB)</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="tb-tool-btn" id="btn-clear-selected-model" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+
+                                <!-- Status / Validation Feedback Alert -->
+                                <div id="model-feedback-alert" style="display: none; margin-top: 10px;" class="tb-feedback-alert"></div>
+
+                                <!-- Action Buttons -->
+                                <div style="display: flex; gap: 8px; margin-top: 14px;">
+                                    <button type="button" class="tb-btn tb-btn-primary" id="btn-upload-model-submit" style="flex: 2;">
+                                        <i class="fa-solid fa-bolt"></i> Deploy & Hot-Reload Model
+                                    </button>
+                                    <button type="button" class="tb-btn tb-btn-secondary" id="btn-reset-default-model" style="flex: 1;" title="Restore Factory Default">
+                                        <i class="fa-solid fa-rotate-left"></i> Factory Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CARD 2: ESP32-CAM Node IP & Cloud Ingestion Settings -->
+                        <div class="tb-widget">
+                            <div class="tb-widget-header">
+                                <div class="tb-widget-title">
+                                    <i class="fa-solid fa-satellite-dish tb-text-accent"></i>
+                                    <span>ESP32-CAM Cloud & Hardware Settings</span>
+                                </div>
+                                <span class="tb-badge-cloud"><i class="fa-solid fa-cloud"></i> PUSH & PULL MODES</span>
+                            </div>
+                            <div class="tb-config-form">
+                                
+                                <!-- Cloud Ingestion URL for ESP32 Firmware -->
+                                <div class="tb-form-group">
+                                    <label for="cloud-ingest-url">
+                                        <i class="fa-solid fa-link text-green"></i> Cloud Ingestion Endpoint (Paste in ESP32 Firmware)
+                                    </label>
+                                    <div class="tb-input-row">
+                                        <input type="text" id="cloud-ingest-url" class="tb-input" readonly value="https://your-cloud-domain.com/upload">
+                                        <button class="tb-btn tb-btn-primary" id="btn-copy-cloud-url" title="Copy to Clipboard">
+                                            <i class="fa-solid fa-copy"></i> Copy URL
+                                        </button>
+                                    </div>
+                                    <small class="tb-form-hint">Set this URL as <code>CLOUD_SERVER_URL</code> in <code>esp32_cam_firmware.ino</code> for direct HTTPS/HTTP cloud pushing.</small>
+                                </div>
+
+                                <!-- Local IP Pull Setting -->
+                                <div class="tb-form-group" style="margin-top: 14px;">
+                                    <label for="input-esp32-url"><i class="fa-solid fa-network-wired tb-text-accent"></i> Local ESP32-CAM IP / Endpoint (Pull Mode)</label>
+                                    <div class="tb-input-row">
+                                        <input type="text" id="input-esp32-url" class="tb-input" value="http://10.92.50.153" placeholder="http://10.92.50.153">
+                                        <button class="tb-btn tb-btn-secondary" id="btn-save-esp32-url">
+                                            <i class="fa-solid fa-save"></i> Save IP
+                                        </button>
+                                    </div>
+                                    <small class="tb-form-hint">Used when server is on the same local subnet to query <code>/capture</code>.</small>
+                                </div>
+
+                                <div class="tb-ping-card">
+                                    <div class="tb-ping-card-header">
+                                        <span>Local Node Telemetry Ping</span>
+                                        <button class="tb-btn tb-btn-secondary tb-btn-sm" id="btn-test-ping">
+                                            <i class="fa-solid fa-satellite-dish"></i> Execute Ping
+                                        </button>
+                                    </div>
+                                    <div id="ping-details-content" class="tb-ping-body">
+                                        <p class="tb-text-muted">Click <strong>Execute Ping</strong> to test bidirectional communication between the server and ESP32-CAM.</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

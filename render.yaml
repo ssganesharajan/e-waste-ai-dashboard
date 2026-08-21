@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: e-waste-ai-dashboard
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: ADMIN_USER
+        value: Admin
+      - key: ADMIN_PASSWORD
+        value: "12345678"

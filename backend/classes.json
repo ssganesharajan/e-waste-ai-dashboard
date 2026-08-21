@@ -1,0 +1,303 @@
+{
+  "classes": [
+    {
+      "id": 0,
+      "name": "Battery",
+      "category": "Energy Storage & Hazardous Waste",
+      "icon": "🔋",
+      "hazard_level": "High",
+      "hazard_color": "#ef4444",
+      "description": "Chemical energy storage devices including Lithium-ion, Nickel-Cadmium, Lead-acid, and Alkaline batteries.",
+      "recyclable_materials": [
+        "Lithium (Li)",
+        "Cobalt (Co)",
+        "Nickel (Ni)",
+        "Manganese (Mn)",
+        "Copper foils",
+        "Aluminum casings"
+      ],
+      "hazardous_substances": [
+        "Sulfuric Acid / Flammable Electrolytes",
+        "Lead (Pb)",
+        "Cadmium (Cd)",
+        "Cobalt Oxides"
+      ],
+      "recycling_steps": [
+        "Do NOT puncture, crush, or expose battery to open flame.",
+        "Tape both positive and negative terminals with non-conductive tape (electrical/duct tape) to prevent short circuits.",
+        "Store in a cool, dry, fire-safe container away from combustible materials.",
+        "Deliver to a specialized battery recycling bin, retailer drop-off kiosk, or municipal hazardous waste facility."
+      ],
+      "co2_savings_kg": 2.5,
+      "material_recovery_rate": "95%",
+      "reuse_potential": "Secondary grid energy storage (for EV/Li-ion modules) or raw metal smelting"
+    },
+    {
+      "id": 1,
+      "name": "Cable & Wires",
+      "category": "Conductive Wiring & Connectors",
+      "icon": "🔌",
+      "hazard_level": "Low",
+      "hazard_color": "#22c55e",
+      "description": "Power cables, USB cords, Ethernet cables, audio jacks, and internal ribbon wiring with high-grade metal cores.",
+      "recyclable_materials": [
+        "High-purity Copper (Cu 99.9%)",
+        "Aluminum (Al)",
+        "Gold-plated contacts",
+        "Thermoplastic insulation (PVC / PE)"
+      ],
+      "hazardous_substances": [
+        "PVC Chlorine emissions when burned",
+        "Phthalate plasticizers",
+        "Brominated flame retardants in insulation"
+      ],
+      "recycling_steps": [
+        "Separate damaged cables from reusable functioning cords.",
+        "Do NOT burn cables to extract copper (releases toxic dioxins and hydrochloric fumes).",
+        "Coil neatly and bundle with twist ties.",
+        "Deliver to specialized e-waste scrap centers equipped with mechanical cable granulators/strippers."
+      ],
+      "co2_savings_kg": 1.2,
+      "material_recovery_rate": "98%",
+      "reuse_potential": "Direct reuse if functional, or granulated into pure copper pellets for remanufacturing"
+    },
+    {
+      "id": 2,
+      "name": "Circuit Board / PCB",
+      "category": "High-Value Electronic Assemblies",
+      "icon": "🖲️",
+      "hazard_level": "Moderate",
+      "hazard_color": "#f59e0b",
+      "description": "Printed Circuit Boards (PCBs), motherboards, graphics cards, RAM sticks, and microcontroller boards rich in precious metals.",
+      "recyclable_materials": [
+        "Gold (Au - pins, edge connectors)",
+        "Silver (Ag - solder alloy)",
+        "Palladium (Pd - capacitors)",
+        "Copper (Cu - conductive traces)",
+        "Tantalum (Ta - SMD capacitors)",
+        "Fiberglass / Epoxy substrate"
+      ],
+      "hazardous_substances": [
+        "Lead (Pb) in older solder alloy",
+        "Beryllium oxide in power semiconductors",
+        "Brominated flame retardants (TBBA)"
+      ],
+      "recycling_steps": [
+        "Carefully unscrew and remove any coin-cell batteries (CR2032) or large aluminum heatsinks.",
+        "Handle board by the edges with gloves to avoid static discharge and contact with metal oxides.",
+        "Store in anti-static or cardboard packaging.",
+        "Hand over to certified R2 / e-Stewards recyclers utilizing hydrometallurgical or pyrometallurgical refining."
+      ],
+      "co2_savings_kg": 4.8,
+      "material_recovery_rate": "90%",
+      "reuse_potential": "Component-level desoldering for repair parts, or precious metal hydrometallurgical smelting"
+    },
+    {
+      "id": 3,
+      "name": "Mobile Phone & Tablet",
+      "category": "Personal Smart Devices",
+      "icon": "📱",
+      "hazard_level": "Moderate",
+      "hazard_color": "#f59e0b",
+      "description": "Smartphones, feature phones, and tablets with integrated displays, batteries, cameras, and processors.",
+      "recyclable_materials": [
+        "Gold (Au - logic board contacts)",
+        "Silver & Platinum",
+        "Lithium & Cobalt (internal battery)",
+        "Indium Tin Oxide (touchscreen layer)",
+        "Rare Earth Neodymium (vibration motor, speaker)",
+        "Aerospace-grade Aluminum / Titanium chassis"
+      ],
+      "hazardous_substances": [
+        "Lithium-Cobalt battery cells",
+        "Liquid Crystal fluids (LCD models)",
+        "Trace Arsenic in GaAs radio chips"
+      ],
+      "recycling_steps": [
+        "Perform a full factory data reset and remove iCloud / Google accounts to secure personal data.",
+        "Remove SIM card, MicroSD memory cards, and protective phone cases.",
+        "Inspect battery for swelling; if swollen, store in a fire-proof sand container immediately.",
+        "Deliver to mobile carrier buyback programs, manufacturer trade-in (Apple/Samsung), or certified e-waste recyclers."
+      ],
+      "co2_savings_kg": 16.0,
+      "material_recovery_rate": "85%",
+      "reuse_potential": "Refurbishment, trade-in donation, or closed-loop precious metal reclamation"
+    },
+    {
+      "id": 4,
+      "name": "Laptop & Computer",
+      "category": "Computing Equipment & Systems",
+      "icon": "💻",
+      "hazard_level": "Moderate",
+      "hazard_color": "#f59e0b",
+      "description": "Laptops, desktops, workstations, servers, and mini-PCs containing modular processing components.",
+      "recyclable_materials": [
+        "Structural Aluminum & Magnesium alloys",
+        "Copper heat pipes & radiator fins",
+        "Gold & Silver (CPU pins, RAM contacts)",
+        "High-density Silicon (ICs)",
+        "Steel server chassis"
+      ],
+      "hazardous_substances": [
+        "Mercury vapor in older CCFL backlights",
+        "Lead solder on legacy boards",
+        "Lithium Polymer internal battery packs"
+      ],
+      "recycling_steps": [
+        "Back up important files and securely wipe (DoD 5220.22-M) or physically remove storage drives (HDD/SSD).",
+        "Detach power adapter, external mice, and separate laptop battery if removable.",
+        "Disassemble modular parts (RAM, WiFi card, SSD) for reuse in other systems.",
+        "Deliver complete unit to electronics trade-in or certified computing recycling centers."
+      ],
+      "co2_savings_kg": 35.0,
+      "material_recovery_rate": "88%",
+      "reuse_potential": "Hardware upgrade (SSD/RAM upgrade for Linux lightweight distro) or enterprise component harvesting"
+    },
+    {
+      "id": 5,
+      "name": "Keyboard & Mouse",
+      "category": "Computer Peripherals & Input Devices",
+      "icon": "⌨️",
+      "hazard_level": "Low",
+      "hazard_color": "#22c55e",
+      "description": "Mechanical and membrane keyboards, optical and laser computer mice, and trackpads.",
+      "recyclable_materials": [
+        "ABS & Polycarbonate thermoplastics",
+        "Silicone elastomer key domes",
+        "Mechanical copper contact switches",
+        "Steel reinforcement backplates",
+        "Internal single-layer PCB"
+      ],
+      "hazardous_substances": [
+        "Flame retardant additives in plastics",
+        "Lead traces in solder joints"
+      ],
+      "recycling_steps": [
+        "Remove alkaline batteries from wireless models.",
+        "Disassemble keycaps and plastic shells for thermoplastic sorting and washing.",
+        "Separate metal springs and internal screws using magnets.",
+        "Submit plastics to municipal polymer recycling and internal circuits to e-waste bins."
+      ],
+      "co2_savings_kg": 0.8,
+      "material_recovery_rate": "92%",
+      "reuse_potential": "Key switch lubing/repair, maker DIY keyboard mods, or pelletized plastic remolding"
+    },
+    {
+      "id": 6,
+      "name": "Monitor & Display",
+      "category": "Visual Displays & Screen Panels",
+      "icon": "🖥️",
+      "hazard_level": "High",
+      "hazard_color": "#ef4444",
+      "description": "Computer monitors, LCD/LED screens, OLED panels, and legacy Cathode Ray Tube (CRT) monitors.",
+      "recyclable_materials": [
+        "Indium Tin Oxide (transparent electrodes)",
+        "Optical grade glass sheets",
+        "Aluminum stand and bezel frame",
+        "Power supply transformers and high-voltage capacitors"
+      ],
+      "hazardous_substances": [
+        "Mercury vapor inside CCFL cold-cathode fluorescent lamps",
+        "Lead oxide (up to 2-3 kg in CRT funnel glass)",
+        "Phosphor powder coatings inside screens",
+        "Cadmium in older color filters"
+      ],
+      "recycling_steps": [
+        "NEVER break, smash, or open the display glass—toxic mercury vapor and hazardous lead glass shards will escape.",
+        "Keep the panel intact and wrap screen surface in bubble wrap or cardboard for transit.",
+        "Detach power cable and stand for separate metal recycling.",
+        "Take directly to a designated hazardous electronic waste facility with specialized CRT/LCD dismantling robots."
+      ],
+      "co2_savings_kg": 22.0,
+      "material_recovery_rate": "80%",
+      "reuse_potential": "Screen refurbishing, glass cullet for industrial sandblasting, or indium extraction"
+    },
+    {
+      "id": 7,
+      "name": "Charger & Power Adapter",
+      "category": "Power Electronics & Transformers",
+      "icon": "🔌",
+      "hazard_level": "Low",
+      "hazard_color": "#22c55e",
+      "description": "Wall chargers, fast-charging bricks, laptop power bricks, and switching power supply adapters.",
+      "recyclable_materials": [
+        "Heavy Copper transformer coils (Cu)",
+        "Ferrite magnetic cores",
+        "Aluminum heatsinks",
+        "Flame-resistant Polycarbonate casing",
+        "High-voltage electrolytic capacitors"
+      ],
+      "hazardous_substances": [
+        "Electrolytic fluid in capacitors",
+        "Flame-retardant epoxy resins"
+      ],
+      "recycling_steps": [
+        "Inspect if working; common 5V/12V adapters can be repurposed for DIY electronics and Arduino/Raspberry Pi projects.",
+        "Bundle DC cable with the brick to keep cords organized.",
+        "Do NOT attempt to crack open sealed high-voltage capacitors if recently plugged in.",
+        "Drop into small electronics recycling collection boxes at tech stores or municipal hubs."
+      ],
+      "co2_savings_kg": 1.8,
+      "material_recovery_rate": "94%",
+      "reuse_potential": "Universal USB-C / DC power supply repurposing or copper transformer remelting"
+    },
+    {
+      "id": 8,
+      "name": "Headphones & Audio Gear",
+      "category": "Acoustic Devices & Audio Peripherals",
+      "icon": "🎧",
+      "hazard_level": "Low",
+      "hazard_color": "#22c55e",
+      "description": "Over-ear headphones, in-ear earphones, Bluetooth earbuds, microphones, and portable speaker drivers.",
+      "recyclable_materials": [
+        "Neodymium Rare Earth Magnets (NdFeB)",
+        "Fine Copper voice coils",
+        "Stainless steel headband sliders",
+        "Polyurethane memory foam and leatherette",
+        "Miniature Li-Po battery cells (in TWS earbuds)"
+      ],
+      "hazardous_substances": [
+        "Lithium coin cells (in true-wireless earbuds like AirPods)",
+        "Phthalates in synthetic ear tips"
+      ],
+      "recycling_steps": [
+        "Detach silicone or foam ear cushions for general plastic/rubber recycling.",
+        "If wireless, ensure the charging case and earbuds are recycled together to safely process the miniature Li-ion cells.",
+        "Untangle and wrap audio cord neatly.",
+        "Deposit at audio brand trade-in drop boxes (e.g. Sony, Sennheiser, Apple) or electronics recyclers."
+      ],
+      "co2_savings_kg": 1.5,
+      "material_recovery_rate": "86%",
+      "reuse_potential": "Driver/diaphragm replacement, neodymium magnet harvesting, or cable repurposing"
+    },
+    {
+      "id": 9,
+      "name": "Storage Devices (HDD / SSD / CD)",
+      "category": "Data Storage & Solid-State Media",
+      "icon": "💾",
+      "hazard_level": "Low",
+      "hazard_color": "#22c55e",
+      "description": "Magnetic Hard Disk Drives (HDD), Solid State Drives (SSD), USB Flash Drives, Optical CDs/DVDs, and SD cards.",
+      "recyclable_materials": [
+        "Cast Aluminum drive chassis",
+        "High-grade Neodymium voice coil magnets",
+        "Nickel-plated Aluminum/Glass magnetic platters",
+        "NAND Flash memory & controller ICs",
+        "Polycarbonate optical disc substrate"
+      ],
+      "hazardous_substances": [
+        "Nickel alloy coating on magnetic platters",
+        "Brominated circuit substrate"
+      ],
+      "recycling_steps": [
+        "CRITICAL: Wipe data with certified multipass overwrite tool (DBAN / BleachBit) or physically drill holes through HDD platters if discarding confidential data.",
+        "Remove aluminum top plate to harvest extremely strong neodymium actuator magnets for workshop use.",
+        "Separate solid-state PCB from aluminum SATA casing.",
+        "Deliver shredded or whole media to secure electronic waste destruction facilities."
+      ],
+      "co2_savings_kg": 3.2,
+      "material_recovery_rate": "96%",
+      "reuse_potential": "Data wiping for secondary storage drive reuse, or aluminum alloy recycling"
+    }
+  ]
+}
